@@ -91,7 +91,7 @@ function Countries() {
 
   return (
     <>
-      <div className={showCountryDetail ? 'display-block' : 'display-none'}>
+      <div id="country-detail" className={showCountryDetail ? 'display-block' : 'display-none'}>
         <CountryDetail
           name={detailName}
           capital={detailCapital}
@@ -120,14 +120,17 @@ function Countries() {
               <td>
                 <img src={row.flag} width={20} alt={row.name} />
                 {row.name}
-                <button onClick={() => showDetail(row)}>More Details</button>
                 <br />
-                {row.alpha3Code}
+                <span className="small">{row.alpha3Code}</span>
+                <br />
+                <button className="moreDetail" onClick={() => showDetail(row)}>
+                  More Details
+                </button>
               </td>
               <td>
                 {formatPopulation(row.population)}
                 <br />
-                {row.capital}
+                <span className="small">{row.capital}</span>
               </td>
             </tr>
           ))}

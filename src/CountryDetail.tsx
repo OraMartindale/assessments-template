@@ -8,24 +8,24 @@ interface CountryDetailProps {
 }
 const CountryDetail = (props: CountryDetailProps) => {
   return (
-    <div id="country-detail">
+    <>
       <h2>{props.name}</h2>
       <p>
-        Capital
+        <span className="small">Capital</span>
         <br />
         {props.capital}
       </p>
       <p>
-        Languages
+        <span className="small">Languages</span>
         <br />
         {props.languages}
       </p>
       <p>
-        Currencies
+        <span className="small">Currencies</span>
         <br />
         {props.currencies}
       </p>
-    </div>
+    </>
   );
 };
 
