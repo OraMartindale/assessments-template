@@ -1,11 +1,23 @@
 import React, { useState, useEffect, ChangeEvent } from 'react';
+import CountryDetail from './CountryDetail';
 
+interface CountryLanguages {
+  iso639_1: string;
+  iso639_2: string;
+  name: string;
+  nativeName: string;
+}
+interface CountryCurrencies {
+  code: string;
+  name: string;
+  symbol: string;
+}
 interface Country {
   name: string;
   alpha3Code: string;
   capital: string;
-  currencies: Array<object>;
-  languages: Array<object>;
+  currencies: Array<CountryCurrencies>;
+  languages: Array<CountryLanguages>;
   population: number;
   flag: string;
 }
@@ -14,6 +26,11 @@ function Countries() {
   const [countries, setCountries] = useState<Array<Country>>([]);
   const [sortDirection, setSortDirection] = useState<string>('desc');
   const [filterValue, setFilterValue] = useState<string>('');
+  const [showCountryDetail, setShowCountryDetail] = useState<boolean>(false);
+  const [detailName, setDetailName] = useState<string>('');
+  const [detailCapital, setDetailCapital] = useState<string>('');
+  const [detailLanguages, setDetailLanguages] = useState<string>('');
+  const [detailCurrencies, setDetailCurrencies] = useState<string>('');
 
   const sortDesc = (firstElement: Country, secondElement: Country) =>
     firstElement.population > secondElement.population ? 1 : -1;
@@ -61,39 +78,62 @@ function Countries() {
     }
   }, [filterValue]);
 
+  const showDetail = (country: Country) => {
+    setDetailName(country.name);
+    setDetailCapital(country.capital);
+    setDetailLanguages(country.languages.map(language => language.name).join(','));
+    setDetailCurrencies(country.currencies.map(currency => currency.name).join(','));
+    setShowCountryDetail(true);
+  };
+  const closeDetail = () => {
+    setShowCountryDetail(false);
+  };
+
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Country</th>
-          <th>
-            Population<button onClick={changeSortDirection}>{sortDirection}</button>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td colSpan={2}>
-            <input placeholder="Filter By Country or Code" value={filterValue} onChange={filterCountries} />
-          </td>
-        </tr>
-        {countries.map((row, item) => (
-          <tr key={item}>
-            <td>
-              <img src={row.flag} width={20} alt={row.name} />
-              {row.name}
-              <br />
-              {row.alpha3Code}
-            </td>
-            <td>
-              {formatPopulation(row.population)}
-              <br />
-              {row.capital}
+    <>
+      <div className={showCountryDetail ? 'display-block' : 'display-none'}>
+        <CountryDetail
+          name={detailName}
+          capital={detailCapital}
+          languages={detailLanguages}
+          currencies={detailCurrencies}
+        />
+        <button onClick={closeDetail}>Close</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Country</th>
+            <th>
+              Population<button onClick={changeSortDirection}>{sortDirection}</button>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colSpan={2}>
+              <input placeholder="Filter By Country or Code" value={filterValue} onChange={filterCountries} />
             </td>
           </tr>
-        ))}
-      </tbody>
-    </table>
+          {countries.map((row, item) => (
+            <tr key={item}>
+              <td>
+                <img src={row.flag} width={20} alt={row.name} />
+                {row.name}
+                <button onClick={() => showDetail(row)}>More Details</button>
+                <br />
+                {row.alpha3Code}
+              </td>
+              <td>
+                {formatPopulation(row.population)}
+                <br />
+                {row.capital}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
   );
 }
 
