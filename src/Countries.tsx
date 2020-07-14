@@ -22,7 +22,7 @@ interface Country {
   flag: string;
 }
 
-function Countries() {
+const Countries = () => {
   const [countries, setCountries] = useState<Array<Country>>([]);
   const [sortDirection, setSortDirection] = useState<string>('desc');
   const [filterValue, setFilterValue] = useState<string>('');
@@ -37,13 +37,12 @@ function Countries() {
   const sortAsc = (firstElement: Country, secondElement: Country) =>
     firstElement.population < secondElement.population ? 1 : -1;
 
-  const formatPopulation = (population: number) => population.toLocaleString();
-  const changeSortDirection = () => {
-    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    setCountries(countries.sort(sortDirection === 'asc' ? sortAsc : sortDesc));
-  };
-  const fetchAllCountries = () => {
+  const init = () => {
     setSortDirection('desc');
+    fetchAllCountries();
+  };
+
+  const fetchAllCountries = () => {
     fetch('https://restcountries.eu/rest/v2/all?fields=name;capital;currencies;languages;alpha3Code;population;flag')
       .then(response => response.json())
       .then(c => c.sort(sortAsc))
@@ -51,13 +50,37 @@ function Countries() {
       .catch(console.error);
   };
 
-  const filterCountries = function(event: ChangeEvent<HTMLInputElement>) {
+  const changeSortDirection = () => {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    setCountries(countries.sort(sortDirection === 'asc' ? sortAsc : sortDesc));
+  };
+  const filterCountries = (event: ChangeEvent<HTMLInputElement>) => {
     setFilterValue(event.target.value);
   };
 
+  const showDetail = (country: Country) => {
+    setDetailName(country.name);
+    setDetailCapital(country.capital);
+    setDetailLanguages(country.languages.map(language => language.name).join(','));
+    setDetailCurrencies(country.currencies.map(currency => currency.name).join(','));
+    setShowCountryDetail(true);
+  };
+  const closeDetail = () => {
+    setShowCountryDetail(false);
+  };
+
+  const formatPopulation = (population: number) => population.toLocaleString();
+  const formatSortDirection = (sortDir: string) => {
+    if (sortDir === 'asc') {
+      return <span>&#9650;</span>;
+    }
+    return <span>&#9660;</span>;
+  };
+
   useEffect(() => {
-    fetchAllCountries();
+    init();
   }, []);
+
   useEffect(() => {
     if (filterValue === '') {
       fetchAllCountries();
@@ -73,21 +96,9 @@ function Countries() {
           filteredCountries.push(country);
         }
       }
-      console.log(filteredCountries);
       setCountries(filteredCountries);
     }
   }, [filterValue]);
-
-  const showDetail = (country: Country) => {
-    setDetailName(country.name);
-    setDetailCapital(country.capital);
-    setDetailLanguages(country.languages.map(language => language.name).join(','));
-    setDetailCurrencies(country.currencies.map(currency => currency.name).join(','));
-    setShowCountryDetail(true);
-  };
-  const closeDetail = () => {
-    setShowCountryDetail(false);
-  };
 
   return (
     <>
@@ -105,7 +116,7 @@ function Countries() {
           <tr>
             <th>Country</th>
             <th>
-              Population<button onClick={changeSortDirection}>{sortDirection}</button>
+              Population<button onClick={changeSortDirection}>{formatSortDirection(sortDirection)}</button>
             </th>
           </tr>
         </thead>
@@ -138,6 +149,6 @@ function Countries() {
       </table>
     </>
   );
-}
+};
 
 export default Countries;
